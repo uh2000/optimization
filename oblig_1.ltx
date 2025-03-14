@@ -1,0 +1,210 @@
+\documentclass{article}
+\usepackage{amsthm}  % Package for theorem-like environments
+\usepackage{amssymb} % Package for mathematical symbols including \mathbb
+\usepackage{amsmath}  
+\usepackage{tabularx} 
+\usepackage{changepage}
+\usepackage{booktabs}
+\usepackage{caption}
+
+% Define theorem-like environments
+\newtheorem*{definition}{Definition}
+\newtheorem*{problem}{Problem}
+\newtheorem*{model}{Model}
+\newtheorem*{solution}{Solution}
+
+
+\begin{document}
+
+\begin{problem}[Problem 1a]
+    Consider a graph $G = (V, E)$.\newline
+    The node set V represents station sites, and each edge in E represents a pair of sites between which the distance is within the given bound.\newline
+    The goal is to find the minimum number of service units to cover all station sites.\newline
+\end{problem}
+
+
+
+
+
+\begin{model}[Minimum Dominating Set (MDS)]
+    Modelling\newline
+    \textbf{Variables:}
+    \begin{itemize}
+        \item $x_i = 1$ if station $i$ has a service unit, 0 otherwise
+    \end{itemize}
+    
+    \textbf{Objective:} Minimize the number of service units
+    
+    \begin{center}
+        \begin{align*}
+        \text{minimize} & \sum_{i \in V} x_i & \text{(minimize total number of service units)} \\
+        \text{subject to} & \\
+        x_i + \sum_{j\in N_i}x_j & \geq 1 \quad \forall i \in V & \text{(each station must be covered by at least one service unit)} \\
+        x_i & \in \{0, 1\} \quad \forall i \in V & \text{(binary decision variables)}
+        \end{align*}
+    \end{center}
+\end{model}
+
+
+
+
+
+\begin{solution}
+    \subsubsection*{Solution to Mimimum Dominating Set}
+    \begin{table}[h]
+    \centering
+    \caption{Number of service units required for each pmed instance.}
+    \begin{tabular}{|c|c|}
+    \hline
+    \textbf{Instance} & \textbf{Number of Service Units} \\
+    \hline
+    pmed1 & 24 \\
+    pmed2 & 24 \\
+    pmed3 & 24 \\
+    pmed4 & 25 \\
+    pmed5 & 23 \\
+    \hline
+    \end{tabular}
+    \end{table}
+\end{solution}
+
+\newpage  % Forces a page break here
+
+\begin{problem}[Problem 1b]
+    The vector $c \in \mathbb{Z}^{E}$ represents the distance in question.\newline
+    A cluster is a set consisting of all stations serviced from the same service unit.\newline
+    The diameter of a cluster is the largest distance between any two stations belonging to the cluster.\newline
+    The number of service units can not be larger than bound b, where $b = z+2$ and z is the number of service units in the previous optimal solution.\newline
+    The goal is to minimize the maximum diameter across all clusters.\newline
+\end{problem}
+
+
+\begin{model}[Minimum largest cluster distance]
+    Modelling\newline
+    \textbf{Variables:}
+    \begin{itemize}
+        \item $x_i = 1$ if station $i$ has a service unit, 0 otherwise
+        \item $y_{ij} = 1$ if station $j$ is assigned to service unit at station $i$, 0 otherwise
+        \item $D =$ maximum diameter across all clusters (objective value)
+    \end{itemize}
+    
+    \textbf{Objective:} Minimize the maximum cluster diameter
+    
+    \begin{center}
+        \begin{align*}
+        \text{minimize} & \quad D \\
+        \text{subject to} & \\
+        \sum_{i=1}^{n}y_{ij} & = 1 \quad \forall j \in V & \text{(each node is assigned to exactly one service unit)} \\
+        y_{ij} & \leq x_i \quad \forall i,j \in V & \text{(can only assign to locations with service units)} \\
+        \sum_{i=1}^{n}x_i & \leq b & \text{(limit on number of service units)} \\
+        c_{jk} \cdot (y_{ij} + y_{ik} - 1) & \leq D \quad \forall i,j,k \in V, j < k & \text{(maximum diameter constraint)} \\
+        x_i & \in \{0,1\} \quad \forall i \in V & \text{(binary decision variables)} \\
+        y_{ij} & \in \{0,1\} \quad \forall i,j \in V & \text{(binary assignment variables)}
+        \end{align*}
+    \end{center}
+\end{model}
+
+\newpage  % Forces a page break here
+\begin{solution}
+    \subsubsection*{Solution to Mimimum Largest Cluster Distance}
+    \begin{table}[h]
+        \centering
+        \begin{tabular}{lcccc}
+        \toprule
+        \textbf{Instance} & \textbf{P Value} & \textbf{Max Diameter} & \textbf{Time (s)} & \textbf{Status} \\
+        \midrule
+        pmed1.txt & 26 & 146.00 & 3605 & Optimal \\
+        pmed2.txt & 26 & 128.00 & 3610 & Optimal \\
+        pmed3.txt & 26 & 137.00 & 3659 & Optimal \\
+        pmed4.txt & 27 & 144.00 & 3606 & Optimal \\
+        pmed5.txt & 25 & 119.00 & 3606 & Optimal \\
+        \midrule
+        \multicolumn{5}{l}{Total execution time: 18086 seconds} \\
+        \bottomrule
+        \end{tabular}
+        \caption{The objective value represents the maximum distance between any two nodes in the same cluster.Time limit was set to 3600 seconds.}
+        \end{table}
+\end{solution}
+
+
+
+
+\begin{problem}[Problem 2]
+    Dynamic Programming, Integer Programming, and Greedy approaches to the Knapsack Problem.
+\end{problem}
+
+\begin{model}[Integer Knapsack]
+\begin{align}
+    \text{Let } DP[i,w] &= \text{maximum value using first } i \text{ items with weight at most } w\\
+    DP[0,w] &= 0 \quad \forall w \in \{0,1,\ldots,C\}\\
+    DP[i,w] &= 
+    \begin{cases}
+    \max(DP[i-1,w], DP[i-1,w-w_i] + v_i) & \text{if } w_i \leq w\\
+    DP[i-1,w] & \text{otherwise}
+    \end{cases}
+    \end{align}
+\end{model}
+
+
+\begin{model}[Integer Programming]
+\begin{align}
+    \text{maximize} \quad & \sum_{i=1}^{n} v_i x_i\\
+    \text{subject to} \quad & \sum_{i=1}^{n} w_i x_i \leq C\\
+    & x_i \in \{0,1\} \quad \forall i \in \{1,2,\ldots,n\}
+    \end{align}
+\end{model}
+
+
+\begin{model}[Greedy Heurstic]
+\begin{align}
+    \text{1. Compute ratio } & r_i = \frac{v_i}{w_i} \text{ for each item } i\\
+    \text{2. Sort items by } & r_i \text{ in descending order}\\
+    \text{3. For each item } & i \text{ in the sorted list:}\\
+    & \text{If } w_i \leq \text{remaining capacity, add item } i \text{ to knapsack}
+    \end{align}
+\end{model}
+
+
+\newpage  % Forces a page break here
+
+\begin{adjustwidth}{-3.5cm}{0cm} % Left margin adjustment, right margin unchanged
+\section*{Knapsack Results}
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{|l|c|r|r|r|r|r|r|r|r|}
+\hline
+\textbf{Instance} & \textbf{Items} & \textbf{Capacity} & \textbf{DP Value} & \textbf{DP Time} & \textbf{IP Value} & \textbf{IP Time} & \textbf{Greedy Value} & \textbf{Greedy Time} & \textbf{Greedy Gap} \\
+\hline
+s002.kp & 198 & 49000 & 63100 & 7.47 s & 63100.0 & 0.23 s & 62653 & 0.0001 s & 0.71\% \\
+s003.kp & 498 & 125125 & 159925 & 49.37 s & 159925.0 & 0.16 s & 159587 & 0.0002 s & 0.21\% \\
+s004.kp & 498 & 128232 & 163332 & 50.66 s & 163332.0 & 0.13 s & 163124 & 0.0002 s & 0.13\% \\
+s000.kp & 48 & 14239 & 17439 & 0.52 s & 17439.0 & 0.11 s & 16837 & 0.0000 s & 3.45\% \\
+s001.kp & 98 & 25391 & 32191 & 1.92 s & 32191.0 & 0.14 s & 31551 & 0.0001 s & 1.99\% \\
+\hline
+\end{tabular}
+\vspace{0.5cm}
+
+\textbf{Table 1:} Comparison of Dynamic Programming, Integer Programming, and Greedy approaches to the Knapsack Problem.
+
+\end{adjustwidth}
+
+
+\begin{flushleft}
+
+\begin{definition}[IP value vs Greedy value]
+We observe that the greedy heuristic is very close to the IP value on all instances\newline The greedy heuristic is much faster than the IP algorithm.\newline The greedy heuristic is a good approximation algorithm for the knapsack problem.
+\end{definition}
+
+
+\begin{definition}[IP running time vs DP running time]
+    The IP algorithm is faster than the DP algorithm on all instances and much faster when the capacity is high.\newline
+\end{definition}
+
+\begin{definition}[IP vs DP]
+To make the DP algorithm run faster than the IP algorithm we needed to decrease the $C$ from 500 to 40 on the s004.kp instance.\newline 
+This is because the DP algorithm has a time complexity of $O(n \cdot C)$, where $n$ is the number of items and $C$ is the capacity of the knapsack.\newline 
+The IP algorithm has a time complexity of $O(n \cdot 2^n)$, where $n$ is the number of items. The DP algorithm is faster than the IP algorithm when $C$ is small compared to $n$.\newline
+\end{definition}
+\end{flushleft}
+
+\end{document}
